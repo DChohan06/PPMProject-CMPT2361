@@ -3,9 +3,9 @@ CMPT 2361 project that produces a ppm image filter converter
 
 Team Members:
 
-    - Dylan Chohan
-    - Edward Tran
-    - On Ki Tom
+    - Dylan Chohan - Programmer, PR Reviewer
+    - Edward Tran - Programmer, PR Reviewer
+    - On Ki Tom - Programmer, PR Reviewer
 
 Project Goals:
 
