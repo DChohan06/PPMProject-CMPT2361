@@ -102,3 +102,51 @@ return img;
         //MUST DELETE after use to avoid MEMORY LEAKS
         return *scaledImage;
     }
+
+    const PPM& Graphics:: RotateImage(PPM& img, double angle){
+        unsigned int width=img.GetWidth();
+        unsigned int height=img.GetHeight();
+        double cx=(width-1)/2; //x-center of the image
+        double cy=(height-1)/2; //y-center of the image
+        double cosTheta=cos(angle);
+        double sinTheta=sin(angle);
+
+        PPM* rotatedImage= new PPM();
+        rotatedImage->SetWidth(width);
+        rotatedImage->SetHeight(height);
+        rotatedImage->resize(width*height);
+
+        for (unsigned int y=0;y<height;y++){
+            for (unsigned int x=0;x<width;x++){
+                //because the rotation matrix rotates around the 0,0, so we have to do this make the midpoint applicable to the rotation matrix
+                double translatedX=x-cx;
+                double translatedY=y-cy;
+
+                //apply rotation
+                double rotatedX=translatedX*cosTheta-translatedY*sinTheta;
+                double rotatedY=translatedX*sinTheta+translatedY*cosTheta;
+
+                //go back to reality adding the cx and cy after subtracting it to make the algorithm works for mid point rotation
+                double srcX=rotatedX+cx;
+                double srcY=rotatedY+cy;
+                
+                //check bounds
+                if (srcX>=0 && srcX<=width-1 && srcY>=0 && srcY<=height-1){
+                    unsigned int originalX= static_cast<unsigned int>(srcX+0.5);
+                    unsigned int originalY=static_cast<unsigned int>(srcY+0.5);
+
+                    //the x and y in the original image that is about to be transferred to rotatedImage in the rotated position
+                    originalX=min(originalX,width-1);
+                    originalY=min(originalY,height-1);
+
+                    (*rotatedImage)[y*width+x]=img[originalY*width+originalX];
+
+                }else{
+                    //set to black if out of bounds
+                    (*rotatedImage)[y*width+x]=Pixel(0,0,0);
+                }
+            }
+        }
+        //must call the destructor after using this to avoid memory leak
+        return *rotatedImage;
+    }
