@@ -6,7 +6,8 @@ PPM::PPM(): magic("P3"), comment(""), width(0), height(0), maxColor(255), pixels
 }
 
 //Copy constructor - deep copy use std::vector copy constructor
-PPM::PPM(const PPM& other): magic(other.magic), comment(other. comment), width(other.width), height(other.height), maxColor(other.maxColor), pixels(other.pixels){}
+PPM::PPM(const PPM& other): magic(other.magic), comment(other. comment), width(other.width), height(other.height), maxColor(other.maxColor), pixels(other.pixels){
+}
 
 //Move constructor - calls std::vector move constructor
 PPM::PPM(PPM&& other): magic(other.magic), comment(other. comment), width(other.width), height(other.height), maxColor(other.maxColor), pixels(std::move(other.pixels)){
@@ -25,10 +26,26 @@ PPM::PPM(ifstream& inputFile){
     
     if (!inputFile){
         cout << "Error, unable to open the input file" << endl; //could throw exception
+        return;
+        
     }else {
+        
         //read PPM file header
         inputFile >> magic;
-        getline(inputFile, comment);
+        
+        string line;
+        getline(inputFile, line);
+        // Check if we read a blank line (due to CR+LF issue - macOs vs Microsoft)
+        if (line.empty() || (line.size() == 1 && line[0] == '\r')) {
+            cout << "Skipping empty line after magic number" << endl;
+        }
+
+        // Now read comments
+        while (inputFile.peek() == '#') {
+            getline(inputFile, line);
+            comment += line;
+        }
+        
         inputFile >> width >> height;
         inputFile >> maxColor;
         
@@ -42,6 +59,8 @@ PPM::PPM(ifstream& inputFile){
             inputFile >> r >> g >> b;
             pixels[i] = Pixel(r,g,b);
         }
+        
+        cout << "PPM file successfully loaded!" << endl;
         
     }
 }
@@ -141,12 +160,14 @@ void PPM::saveImageToFile(const string &filename) const {
         
         //Write the PPM file header
         outfile << magic << "\n";
-        outfile << comment << "\n";
+        if (!comment.empty()) {
+            outfile << comment << "\n";
+        }
         outfile << width << " " << height << "\n";
         outfile << maxColor << "\n";
         
         //write all pixels to file
-        for (unsigned int i = 0; i < (width * height); i++){
+        for (unsigned int i = 0; i < pixels.size(); i++){
             
             //try to access the pixel values with const operator
             try {
@@ -156,8 +177,9 @@ void PPM::saveImageToFile(const string &filename) const {
                 
                 //handle exception
                 outfile << "Error: " << e.returnError() << e.returnOffendingIndex() << "\n";
+                outfile.close();
                 
-                break;
+                return;
             }
             
             // if reach end of a row, go to next row

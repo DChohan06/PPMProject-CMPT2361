@@ -12,5 +12,6 @@ class Graphics{
 	static const PPM& RotateImage(PPM&,double);
 	static const PPM& ScaleImage(PPM&, double);
 	static const PPM& TranslateImage(PPM&, int, int);
+    static const PPM& BlurImage(PPM& img, unsigned int radius);
 
 };

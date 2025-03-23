@@ -1,29 +1,18 @@
 // //
 // //  main.cpp
 // //  PPMProject
-// //
-// //  Created by Tom On Ki Angel on 8/3/2025.
-// //
 
-// #include <iostream>
-// #include "Graphics.h"
-// int main(int argc, const char * argv[]) {
-//     // insert code here...
-//     std::cout << "Hello, World!\n";
-//     ifstream infile("Shahriar.ppm");
-//     PPM img=PPM(infile);
-//     PPM rotatedImage=Graphics::RotateImage(img,3.14);
-//     rotatedImage.saveImageToFile("RotatedShahriar.ppm");
-//     ~rotatedImage;
-//     return 0;
-// }
 #include <iostream>
 #include <fstream>
 #include "Graphics.h"
+
 using namespace std;
+namespace fs = std::filesystem;
+
 
 int main() {
-    ifstream infile("Shahriar.ppm");
+    
+    ifstream infile("/Users/tomonkiangel/Desktop/Shahriar.ppm");
     if (!infile) {
         cerr << "Error: Failed to open input file." << endl;
         return 1;
@@ -31,24 +20,40 @@ int main() {
 
     PPM img(infile);
     infile.close();
+    
+    // Check if the image was loaded correctly
+    cout << "Image Loaded - Width: " << img.GetWidth() << ", Height: " << img.GetHeight() << endl;
+
+    // Create separate copies for each transformation
+    PPM rotatedImg (img);      // Copy constructor
+    PPM grayscaleImg (img);    // Copy constructor
+    PPM scaledImg (img);       // Copy constructor
+    PPM translatedImg (img);   // Copy constructor
+    PPM blurredImg(img); // Copy constructor
+    
 
     // Test rotation (180 degrees)
-    const PPM& rotated = Graphics::RotateImage(img, 3.14159); 
-    rotated.saveImageToFile("RotatedShahriar.ppm");
-    delete &rotated; // Cleanup
+    rotatedImg = Graphics::RotateImage(rotatedImg, 1.5);
+    rotatedImg.saveImageToFile("/Users/tomonkiangel/Desktop/RotatedShahriar.ppm");
 
     // Test grayscale
-    const PPM& grayscale = Graphics::MakeGrayScale(img);
-    grayscale.saveImageToFile("GrayShahriar.ppm");
+    grayscaleImg = Graphics::MakeGrayScale(grayscaleImg);
+    grayscaleImg.saveImageToFile("/Users/tomonkiangel/Desktop/GrayShahriar.ppm");
+    
 
     // Test scaling
-    const PPM& scaled = Graphics::ScaleImage(img, 0.5);
-    scaled.saveImageToFile("ScaledShahriar.ppm");
-    delete &scaled;
+    scaledImg = Graphics::ScaleImage(scaledImg, 0.5);
+    scaledImg.saveImageToFile("/Users/tomonkiangel/Desktop/ScaledShahriar.ppm");
 
     // Test translation
-    const PPM& translated = Graphics::TranslateImage(img, 50, 50);
-    translated.saveImageToFile("TranslatedShahriar.ppm");
+    translatedImg = Graphics::TranslateImage(translatedImg, 50, 50);
+    translatedImg.saveImageToFile("/Users/tomonkiangel/Desktop/TranslatedShahriar.ppm");
+    
+    //Test blurring
+    blurredImg = Graphics::BlurImage(blurredImg, 2);
+    blurredImg.saveImageToFile("/Users/tomonkiangel/Desktop/BlurredShahriar.ppm");
 
     return 0;
+    
+     
 }
