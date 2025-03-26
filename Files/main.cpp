@@ -7,7 +7,6 @@
 #include "Graphics.h"
 
 using namespace std;
-namespace fs = std::filesystem;
 
 
 int main() {
