@@ -192,7 +192,7 @@ const PPM& Graphics::BlurImage(PPM& img, unsigned int radius) {
                     int nx = x + dx;
                     int ny = y + dy;
                     
-                    // Skip pixels outside the image bounds
+                    // Only take into account the pixels that are within bounds
                     if (nx >= 0 && nx < static_cast<int>(width) && ny >= 0 && ny < static_cast<int>(height)) {
                         Pixel& p = originalImg[ny * width + nx];
                         totalRed += p["red"];
