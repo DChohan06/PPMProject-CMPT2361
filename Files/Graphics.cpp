@@ -109,6 +109,7 @@ const PPM& Graphics:: ScaleImage(PPM& img, double scaleFactor){
     return img;
 }
 
+//Rotate
 const PPM& Graphics:: RotateImage(PPM& img, double angle){
     
     unsigned int width=img.GetWidth();
@@ -124,7 +125,7 @@ const PPM& Graphics:: RotateImage(PPM& img, double angle){
     double cornerX = max(cx, width - 1 - cx);
     double cornerY = max(cy, height - 1 - cy);
     double radius = sqrt(cornerX * cornerX + cornerY * cornerY);
-    unsigned int newWidth = ceil(2 * radius);
+    unsigned int newWidth = ceil(2 * radius); //ceiling function
     unsigned int newHeight = ceil(2 * radius);
         
     // New center coordinates
@@ -170,6 +171,9 @@ const PPM& Graphics:: RotateImage(PPM& img, double angle){
     return img;
 }
 
+//Filters
+
+//Blur
 const PPM& Graphics::BlurImage(PPM& img, unsigned int radius) {
     unsigned int width = img.GetWidth();
     unsigned int height = img.GetHeight();
@@ -215,3 +219,119 @@ const PPM& Graphics::BlurImage(PPM& img, unsigned int radius) {
     
     return img;
 }
+
+// Apply sharpening filter
+const PPM& Graphics::SharpenImage(PPM& img, unsigned int radius) {
+    unsigned int width = img.GetWidth();
+    unsigned int height = img.GetHeight();
+    PPM originalImg = img;
+    
+    int kernel[3][3] = {{  0, -1,  0 },
+                         { -1,  5, -1 },
+                         {  0, -1,  0 }};
+    
+    for (unsigned int y = 1; y < height - 1; y++) {
+        for (unsigned int x = 1; x < width - 1; x++) {
+            int totalRed = 0, totalGreen = 0, totalBlue = 0;
+            
+            for (int dy = -1; dy <= 1; dy++) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    Pixel& p = originalImg[(y + dy) * width + (x + dx)];
+                    totalRed += p["red"] * kernel[dy + 1][dx + 1];
+                    totalGreen += p["green"] * kernel[dy + 1][dx + 1];
+                    totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+                }
+            }
+            
+            img[y * width + x] = Pixel(Clamp(totalRed), Clamp(totalGreen), Clamp(totalBlue));
+        }
+    }
+    return img;
+}
+
+// Apply edge detection filter
+const PPM& Graphics::EdgeDetectedImage(PPM& img, unsigned int radius) {
+    unsigned int width = img.GetWidth();
+    unsigned int height = img.GetHeight();
+    PPM originalImg = img;
+    
+    int kernel[3][3] = {{ -1, -1, -1 },
+                         { -1,  8, -1 },
+                         { -1, -1, -1 }};
+    
+    for (unsigned int y = 1; y < height - 1; y++) {
+        for (unsigned int x = 1; x < width - 1; x++) {
+            int totalRed = 0, totalGreen = 0, totalBlue = 0;
+            
+            for (int dy = -1; dy <= 1; dy++) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    Pixel& p = originalImg[(y + dy) * width + (x + dx)];
+                    totalRed += p["red"] * kernel[dy + 1][dx + 1];
+                    totalGreen += p["green"] * kernel[dy + 1][dx + 1];
+                    totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+                }
+            }
+            
+            img[y * width + x] = Pixel(Clamp(totalRed), Clamp(totalGreen), Clamp(totalBlue));
+        }
+    }
+    return img;
+}
+
+// Apply emboss filter
+const PPM& Graphics::EmbossImage(PPM& img, unsigned int radius) {
+    unsigned int width = img.GetWidth();
+    unsigned int height = img.GetHeight();
+    PPM originalImg = img;
+    
+    int kernel[3][3] = {{ -2, -1,  0 },
+                         { -1,  1,  1 },
+                         {  0,  1,  2 }};
+    
+    for (unsigned int y = 1; y < height - 1; y++) {
+        for (unsigned int x = 1; x < width - 1; x++) {
+            int totalRed = 128, totalGreen = 128, totalBlue = 128;
+            
+            for (int dy = -1; dy <= 1; dy++) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    Pixel& p = originalImg[(y + dy) * width + (x + dx)];
+                    totalRed += p["red"] * kernel[dy + 1][dx + 1];
+                    totalGreen += p["green"] * kernel[dy + 1][dx + 1];
+                    totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+                }
+            }
+            
+            img[y * width + x] = Pixel(Clamp(totalRed), Clamp(totalGreen), Clamp(totalBlue));
+        }
+    }
+    return img;
+}
+
+// Custom high-contrast filter
+const PPM& Graphics::HighContrastImage(PPM& img, unsigned int radius) {
+    unsigned int width = img.GetWidth();
+    unsigned int height = img.GetHeight();
+    
+    for (unsigned int y = 0; y < height; y++) {
+        for (unsigned int x = 0; x < width; x++) {
+            Pixel& p = img[y * width + x];
+            p["red"] = (p["red"] > 128) ? 255 : 0;
+            p["green"] = (p["green"] > 128) ? 255 : 0;
+            p["blue"] = (p["blue"] > 128) ? 255 : 0;
+        }
+    }
+    return img;
+}
+
+// Utility function to clamp values between 0 and 255
+unsigned int Graphics::Clamp(int value) {
+    if (value < 0) {
+        return 0;
+    } else if (value > 255) {
+        return 255;
+    } else {
+        return static_cast<unsigned int>(value);
+    }
+}
+
+

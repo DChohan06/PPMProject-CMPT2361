@@ -7,6 +7,7 @@
 #include "Graphics.h"
 
 using namespace std;
+namespace fs = std::filesystem;
 
 
 int main() {
@@ -28,10 +29,16 @@ int main() {
     PPM grayscaleImg (img);    // Copy constructor
     PPM scaledImg (img);       // Copy constructor
     PPM translatedImg (img);   // Copy constructor
+    
+    //filter containers
     PPM blurredImg(img); // Copy constructor
+    PPM sharpenedImg(img);
+    PPM edgedImg(img);
+    PPM embossedImg(img);
+    PPM customedImg(img);
     
 
-    // Test rotation (180 degrees)
+    // Test rotation (angle in radians)
     rotatedImg = Graphics::RotateImage(rotatedImg, 1.5);
     rotatedImg.saveImageToFile("/Users/tomonkiangel/Desktop/RotatedShahriar.ppm");
 
@@ -48,9 +55,27 @@ int main() {
     translatedImg = Graphics::TranslateImage(translatedImg, 50, 50);
     translatedImg.saveImageToFile("/Users/tomonkiangel/Desktop/TranslatedShahriar.ppm");
     
+    //filters - Blur, Sharpen, Edge Detection, Emboss, and one custom-designed filter
+    
     //Test blurring
     blurredImg = Graphics::BlurImage(blurredImg, 2);
     blurredImg.saveImageToFile("/Users/tomonkiangel/Desktop/BlurredShahriar.ppm");
+    
+    //Test Sharpen
+    sharpenedImg = Graphics::SharpenImage(sharpenedImg, 2);
+    sharpenedImg.saveImageToFile("/Users/tomonkiangel/Desktop/SharpenedShahriar.ppm");
+    
+    //Test Edge Detection
+    edgedImg = Graphics::EdgeDetectedImage(edgedImg, 2);
+    edgedImg.saveImageToFile("/Users/tomonkiangel/Desktop/EdgedShahriar.ppm");
+    
+    //Test Emboss
+    embossedImg = Graphics::EmbossImage(embossedImg, 2);
+    embossedImg.saveImageToFile("/Users/tomonkiangel/Desktop/EmbossedShahriar.ppm");
+    
+    //Custom
+    customedImg = Graphics::HighContrastImage(customedImg, 2);
+    customedImg.saveImageToFile("/Users/tomonkiangel/Desktop/HighContrastShahriar.ppm");
 
     return 0;
     
