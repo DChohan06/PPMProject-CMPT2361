@@ -7,7 +7,6 @@
 #include "Graphics.h"
 
 using namespace std;
-namespace fs = std::filesystem;
 
 
 int main() {
@@ -58,23 +57,23 @@ int main() {
     //filters - Blur, Sharpen, Edge Detection, Emboss, and one custom-designed filter
     
     //Test blurring
-    blurredImg = Graphics::BlurImage(blurredImg, 2);
+    blurredImg = Graphics::ApplyFilter(blurredImg, "blur");
     blurredImg.saveImageToFile("/Users/tomonkiangel/Desktop/BlurredShahriar.ppm");
     
     //Test Sharpen
-    sharpenedImg = Graphics::SharpenImage(sharpenedImg, 2);
+    sharpenedImg = Graphics::ApplyFilter(sharpenedImg, "sharpen");
     sharpenedImg.saveImageToFile("/Users/tomonkiangel/Desktop/SharpenedShahriar.ppm");
     
     //Test Edge Detection
-    edgedImg = Graphics::EdgeDetectedImage(edgedImg, 2);
+    edgedImg = Graphics::ApplyFilter(edgedImg, "edgeDetected");
     edgedImg.saveImageToFile("/Users/tomonkiangel/Desktop/EdgedShahriar.ppm");
     
     //Test Emboss
-    embossedImg = Graphics::EmbossImage(embossedImg, 2);
+    embossedImg = Graphics::ApplyFilter(embossedImg, "emboss");
     embossedImg.saveImageToFile("/Users/tomonkiangel/Desktop/EmbossedShahriar.ppm");
     
     //Custom
-    customedImg = Graphics::HighContrastImage(customedImg, 2);
+    customedImg = Graphics::ApplyFilter(customedImg, "highContrast");
     customedImg.saveImageToFile("/Users/tomonkiangel/Desktop/HighContrastShahriar.ppm");
 
     return 0;

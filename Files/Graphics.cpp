@@ -109,7 +109,7 @@ const PPM& Graphics:: ScaleImage(PPM& img, double scaleFactor){
     return img;
 }
 
-//Rotate
+//Rotate - angle in radians
 const PPM& Graphics:: RotateImage(PPM& img, double angle){
     
     unsigned int width=img.GetWidth();
@@ -173,165 +173,172 @@ const PPM& Graphics:: RotateImage(PPM& img, double angle){
 
 //Filters
 
-//Blur
-const PPM& Graphics::BlurImage(PPM& img, unsigned int radius) {
+const PPM& Graphics::ApplyFilter(PPM& img, const char* filterName) {
+    
+    //get width and height of image
     unsigned int width = img.GetWidth();
     unsigned int height = img.GetHeight();
     
-    // Create a temporary copy of the image to read from
-    // (We need this to avoid reading from pixels we've already modified)
+    //create copy for transformation
     PPM originalImg = img;
     
-    // Apply box blur algorithm
-    for (unsigned int y = 0; y < height; y++) {
-        for (unsigned int x = 0; x < width; x++) {
-            unsigned int totalRed = 0;
-            unsigned int totalGreen = 0;
-            unsigned int totalBlue = 0;
-            unsigned int count = 0;
-            
-            // Sum the values in the neighborhood (kernel)
-            for (int dy = -static_cast<int>(radius); dy <= static_cast<int>(radius); dy++) {
-                for (int dx = -static_cast<int>(radius); dx <= static_cast<int>(radius); dx++) {
-                    int nx = x + dx;
-                    int ny = y + dy;
-                    
-                    // Only take into account the pixels that are within bounds
-                    if (nx >= 0 && nx < static_cast<int>(width) && ny >= 0 && ny < static_cast<int>(height)) {
-                        Pixel& p = originalImg[ny * width + nx];
-                        totalRed += p["red"];
-                        totalGreen += p["green"];
-                        totalBlue += p["blue"];
-                        count++;
+    //blur filter
+    if (strcmp(filterName, "blur") == 0) {
+        //define length for bluring from each pixel for kernel
+        int radius = 1; //use int to prevent static_cast
+        
+        //for every pixel in the image - use int to prevent static_cast
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int totalRed = 0, totalGreen = 0, totalBlue = 0, count = 0;
+                
+                //loop over neighboring pixels within length
+                for (int dy = -radius; dy <= radius; dy++) {
+                    for (int dx = -radius; dx <= radius; dx++) {
+                        
+                        //find neighbour coordinates
+                        int nx = x + dx, ny = y + dy;
+                        
+                        //check if neighbour is within bounds of image width and height
+                        if (nx >= 0 && nx < static_cast<int>(width) && ny >= 0 && ny < static_cast<int>(height)) {
+                            
+                            //add neighbour pixels color values to total
+                            Pixel& p = originalImg[ny * width + nx];
+                            totalRed += p["red"];
+                            totalGreen += p["green"];
+                            totalBlue += p["blue"];
+                            count++;
+                        }
                     }
                 }
+                //set current pixel to average color value of its neighbours
+                img[y * width + x] = Pixel(totalRed / count, totalGreen / count, totalBlue / count);
             }
-            
-            // Calculate average color values
-            unsigned int avgRed = (count > 0) ? totalRed / count : 0;
-            unsigned int avgGreen = (count > 0) ? totalGreen / count : 0;
-            unsigned int avgBlue = (count > 0) ? totalBlue / count : 0;
-            
-            // Modify the pixel in the original image
-            img[y * width + x] = Pixel(avgRed, avgGreen, avgBlue);
         }
-    }
     
-    return img;
-}
-
-// Apply sharpening filter
-const PPM& Graphics::SharpenImage(PPM& img, unsigned int radius) {
-    unsigned int width = img.GetWidth();
-    unsigned int height = img.GetHeight();
-    PPM originalImg = img;
-    
-    int kernel[3][3] = {{  0, -1,  0 },
-                         { -1,  5, -1 },
-                         {  0, -1,  0 }};
-    
-    for (unsigned int y = 1; y < height - 1; y++) {
-        for (unsigned int x = 1; x < width - 1; x++) {
-            int totalRed = 0, totalGreen = 0, totalBlue = 0;
-            
-            for (int dy = -1; dy <= 1; dy++) {
-                for (int dx = -1; dx <= 1; dx++) {
-                    Pixel& p = originalImg[(y + dy) * width + (x + dx)];
-                    totalRed += p["red"] * kernel[dy + 1][dx + 1];
-                    totalGreen += p["green"] * kernel[dy + 1][dx + 1];
-                    totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+    // sharpen filter
+    } else if (strcmp(filterName, "sharpen") == 0) {
+        
+        //use 3x3 kernel to enhance edge
+        int kernel[3][3] = {{  0, -1,  0 }, { -1,  5, -1 }, {  0, -1,  0 }};
+        
+        //loop through pixels of image, excluding border
+        for (unsigned int y = 1; y < height - 1; y++) {
+            for (unsigned int x = 1; x < width - 1; x++) {
+                int totalRed = 0, totalGreen = 0, totalBlue = 0;
+                
+                //apply kernel to surrounding pixels
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        Pixel& p = originalImg[(y + dy) * width + (x + dx)];
+                        totalRed += p["red"] * kernel[dy + 1][dx + 1];
+                        totalGreen += p["green"] * kernel[dy + 1][dx + 1];
+                        totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+                    }
                 }
+                
+                //make sure color values are within 0 and 255
+                totalRed = (totalRed < 0) ? 0 : (totalRed > 255 ? 255 : totalRed);
+                totalGreen = (totalGreen < 0) ? 0 : (totalGreen > 255 ? 255 : totalGreen);
+                totalBlue = (totalBlue < 0) ? 0 : (totalBlue > 255 ? 255 : totalBlue);
+                
+                //set pixel to new sharpen color
+                img[y * width + x] = Pixel(totalRed, totalGreen, totalBlue);
             }
-            
-            img[y * width + x] = Pixel(Clamp(totalRed), Clamp(totalGreen), Clamp(totalBlue));
         }
-    }
-    return img;
-}
-
-// Apply edge detection filter
-const PPM& Graphics::EdgeDetectedImage(PPM& img, unsigned int radius) {
-    unsigned int width = img.GetWidth();
-    unsigned int height = img.GetHeight();
-    PPM originalImg = img;
-    
-    int kernel[3][3] = {{ -1, -1, -1 },
-                         { -1,  8, -1 },
-                         { -1, -1, -1 }};
-    
-    for (unsigned int y = 1; y < height - 1; y++) {
-        for (unsigned int x = 1; x < width - 1; x++) {
-            int totalRed = 0, totalGreen = 0, totalBlue = 0;
-            
-            for (int dy = -1; dy <= 1; dy++) {
-                for (int dx = -1; dx <= 1; dx++) {
-                    Pixel& p = originalImg[(y + dy) * width + (x + dx)];
-                    totalRed += p["red"] * kernel[dy + 1][dx + 1];
-                    totalGreen += p["green"] * kernel[dy + 1][dx + 1];
-                    totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+        
+    // Edge detect filter
+    } else if (strcmp(filterName, "edgeDetect") == 0) {
+        
+        //use kernel for edge detecting make edge brighter
+        int kernel[3][3] = {{ 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 }};
+        
+        //loop through pixels of image, excluding border
+        for (unsigned int y = 1; y < height - 1; y++) {
+            for (unsigned int x = 1; x < width - 1; x++) {
+                int totalRed = 0, totalGreen = 0, totalBlue = 0;
+                
+                //apply kernel to surrounding pixels
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        Pixel& p = originalImg[(y + dy) * width + (x + dx)];
+                        totalRed += p["red"] * kernel[dy + 1][dx + 1];
+                        totalGreen += p["green"] * kernel[dy + 1][dx + 1];
+                        totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+                    }
                 }
+                
+                //make sure color values are within 0 and 255
+                totalRed = (totalRed < 0) ? 0 : (totalRed > 255 ? 255 : totalRed);
+                totalGreen = (totalGreen < 0) ? 0 : (totalGreen > 255 ? 255 : totalGreen);
+                totalBlue = (totalBlue < 0) ? 0 : (totalBlue > 255 ? 255 : totalBlue);
+                
+                //set pixel to new color
+                img[y * width + x] = Pixel(totalRed, totalGreen, totalBlue);
             }
-            
-            img[y * width + x] = Pixel(Clamp(totalRed), Clamp(totalGreen), Clamp(totalBlue));
         }
-    }
-    return img;
-}
-
-// Apply emboss filter
-const PPM& Graphics::EmbossImage(PPM& img, unsigned int radius) {
-    unsigned int width = img.GetWidth();
-    unsigned int height = img.GetHeight();
-    PPM originalImg = img;
-    
-    int kernel[3][3] = {{ -2, -1,  0 },
-                         { -1,  1,  1 },
-                         {  0,  1,  2 }};
-    
-    for (unsigned int y = 1; y < height - 1; y++) {
-        for (unsigned int x = 1; x < width - 1; x++) {
-            int totalRed = 128, totalGreen = 128, totalBlue = 128;
-            
-            for (int dy = -1; dy <= 1; dy++) {
-                for (int dx = -1; dx <= 1; dx++) {
-                    Pixel& p = originalImg[(y + dy) * width + (x + dx)];
-                    totalRed += p["red"] * kernel[dy + 1][dx + 1];
-                    totalGreen += p["green"] * kernel[dy + 1][dx + 1];
-                    totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+    } else if (strcmp(filterName, "emboss") == 0) {
+        
+        //use kernel for emboss -similar to 3D effect
+        int kernel[3][3] = {{ -2, -1,  0 }, { -1,  1,  1 }, {  0,  1,  2 }};
+        
+        //loop through pixels of image, excluding border
+        for (unsigned int y = 1; y < height - 1; y++) {
+            for (unsigned int x = 1; x < width - 1; x++) {
+                int totalRed = 128, totalGreen = 128, totalBlue = 128;
+                
+                //apply kernel to surrounding pixels
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        Pixel& p = originalImg[(y + dy) * width + (x + dx)];
+                        totalRed += p["red"] * kernel[dy + 1][dx + 1];
+                        totalGreen += p["green"] * kernel[dy + 1][dx + 1];
+                        totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+                    }
                 }
+                
+                //make sure color values are within 0 and 255
+                totalRed = (totalRed < 0) ? 0 : (totalRed > 255 ? 255 : totalRed);
+                totalGreen = (totalGreen < 0) ? 0 : (totalGreen > 255 ? 255 : totalGreen);
+                totalBlue = (totalBlue < 0) ? 0 : (totalBlue > 255 ? 255 : totalBlue);
+                
+                //set pixel to new color
+                img[y * width + x] = Pixel(totalRed, totalGreen, totalBlue);
             }
-            
-            img[y * width + x] = Pixel(Clamp(totalRed), Clamp(totalGreen), Clamp(totalBlue));
+        }
+        
+    //customed filter - high contrast
+    } else if (strcmp(filterName, "highContrast") == 0) {
+        
+        //use kernel to enhance contrast
+        int kernel[3][3] = {{ -1, -1,  -1 }, { -1,  8,  -1 }, {  -1,  -1,  -1 }};
+        
+        //loop through pixels of image, excluding border
+        for (unsigned int y = 1; y < height - 1; y++) {
+            for (unsigned int x = 1; x < width - 1; x++) {
+                int totalRed = 128, totalGreen = 128, totalBlue = 128;
+                
+                //apply kernel to surrounding pixels
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        Pixel& p = originalImg[(y + dy) * width + (x + dx)];
+                        totalRed += p["red"] * kernel[dy + 1][dx + 1];
+                        totalGreen += p["green"] * kernel[dy + 1][dx + 1];
+                        totalBlue += p["blue"] * kernel[dy + 1][dx + 1];
+                    }
+                }
+                
+                //make sure color values are within 0 and 255
+                totalRed = (totalRed < 0) ? 0 : (totalRed > 255 ? 255 : totalRed);
+                totalGreen = (totalGreen < 0) ? 0 : (totalGreen > 255 ? 255 : totalGreen);
+                totalBlue = (totalBlue < 0) ? 0 : (totalBlue > 255 ? 255 : totalBlue);
+                
+                //set pixel to new color
+                img[y * width + x] = Pixel(totalRed, totalGreen, totalBlue);
+            }
         }
     }
-    return img;
-}
-
-// Custom high-contrast filter
-const PPM& Graphics::HighContrastImage(PPM& img, unsigned int radius) {
-    unsigned int width = img.GetWidth();
-    unsigned int height = img.GetHeight();
     
-    for (unsigned int y = 0; y < height; y++) {
-        for (unsigned int x = 0; x < width; x++) {
-            Pixel& p = img[y * width + x];
-            p["red"] = (p["red"] > 128) ? 255 : 0;
-            p["green"] = (p["green"] > 128) ? 255 : 0;
-            p["blue"] = (p["blue"] > 128) ? 255 : 0;
-        }
-    }
+    //return a modified img
     return img;
 }
-
-// Utility function to clamp values between 0 and 255
-unsigned int Graphics::Clamp(int value) {
-    if (value < 0) {
-        return 0;
-    } else if (value > 255) {
-        return 255;
-    } else {
-        return static_cast<unsigned int>(value);
-    }
-}
-
-
