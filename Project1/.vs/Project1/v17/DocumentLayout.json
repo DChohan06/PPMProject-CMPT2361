@@ -1,0 +1,36 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\300379265\\Desktop\\PPMProject-CMPT2361\\Project1\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5DDA5893-A31F-4967-81DC-18CA973781D2}|Project1\\Project1.vcxproj|C:\\Users\\300379265\\Desktop\\PPMProject-CMPT2361\\Files\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\Users\\300379265\\Desktop\\PPMProject-CMPT2361\\Files\\main.cpp",
+              "RelativeDocumentMoniker": "..\\Files\\main.cpp",
+              "ToolTip": "C:\\Users\\300379265\\Desktop\\PPMProject-CMPT2361\\Files\\main.cpp",
+              "RelativeToolTip": "..\\Files\\main.cpp",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAAAEwAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-04-02T16:35:14.59Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
