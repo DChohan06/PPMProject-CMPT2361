@@ -1,5 +1,4 @@
 #include "Graphics.h"
-
 //Gray Scale function
 const PPM& Graphics:: MakeGrayScale(PPM& img){
     cout<<"MakeGrayScale is called\n";
@@ -72,7 +71,6 @@ const PPM& Graphics:: TranslateImage(PPM& img, int dx, int dy){
             }
         }
     }
-
     return img;
 }
 

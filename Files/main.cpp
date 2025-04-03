@@ -2,6 +2,18 @@
 // //  main.cpp
 // //  PPMProject
 
+// #include <iostream>
+// #include "Graphics.h"
+// int main(int argc, const char * argv[]) {
+//     // insert code here...
+//     std::cout << "Hello, World!\n";
+//     ifstream infile("Shahriar.ppm");
+//     PPM img=PPM(infile);
+//     PPM rotatedImage=Graphics::RotateImage(img,3.14);
+//     rotatedImage.saveImageToFile("RotatedShahriar.ppm");
+//     ~rotatedImage;
+//     return 0;
+// }
 #include <iostream>
 #include <fstream>
 #include "Graphics.h"
@@ -19,7 +31,7 @@ int main() {
 
     PPM img(infile);
     infile.close();
-    
+  
     // Check if the image was loaded correctly
     cout << "Image Loaded - Width: " << img.GetWidth() << ", Height: " << img.GetHeight() << endl;
 

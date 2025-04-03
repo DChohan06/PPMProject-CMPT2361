@@ -7,7 +7,7 @@ class Graphics{
 	private:
 
 	public:
-    static const PPM& ApplyFilter(PPM&, const char*);
+  static const PPM& ApplyFilter(PPM&, const char*);
 	static const PPM& MakeGrayScale(PPM&);
 	static const PPM& RotateImage(PPM&,double);
 	static const PPM& ScaleImage(PPM&, double);
